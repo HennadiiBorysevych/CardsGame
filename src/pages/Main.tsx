@@ -7,6 +7,7 @@ import HisCardsComponents from "../components/HisCardsComponent";
 import MyActions from "../components/MyActions";
 import MyCardsComponents from "../components/MyCardsComponent";
 import { battleField, hisCards, myCards, game } from "../store";
+import { Card } from "../types";
 
 const Main: React.FC = observer(() => {
   const startGame = () => {
@@ -18,14 +19,29 @@ const Main: React.FC = observer(() => {
 
   const hisAction = () => {
     if (!game.isMyStep) {
-      const battleFieldCards = [...battleField.cards.his, battleField.cards.my];
+      const battleFieldCards = [
+        ...battleField.cards.his,
+        ...battleField.cards.my,
+      ];
 
       const hisJuniorCard = hisCards.defineCardForAction(battleFieldCards);
 
       if (hisJuniorCard) {
         battleField.addHisCard(hisJuniorCard);
       } else {
-        battleField.clearBattleField(myCards,hisCards)
+        battleField.clearBattleField(myCards, hisCards);
+      }
+    }
+  };
+
+  const clickMyCard = (card: Card) => {
+    if (game.isMyStep) {
+      const myStepCard = myCards.checkMyStep(card, [
+        ...battleField.cards.his,
+        ...battleField.cards.my,
+      ]);
+      if (myStepCard) {
+        battleField.addMyCard(myStepCard);
       }
     }
   };
@@ -39,6 +55,10 @@ const Main: React.FC = observer(() => {
       <HisCardsComponents cards={hisCards.cards} />
       <MyCardsComponents cards={myCards.cards} onStep={() => {}} />
       <BattleFieldComponent cards={battleField.cards} />
+      <DeckComponent
+        cardBallance={game.deckCards.length}
+        trump={game.trumpCard}
+      />
     </>
   );
 });
