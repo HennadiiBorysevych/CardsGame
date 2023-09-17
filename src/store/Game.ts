@@ -8,6 +8,7 @@ class Game {
   isMyAttack: boolean = false;
   deckCards: Array<Card> = [];
   attackCard: Card = allCards[0];
+  
   constructor() {
     makeObservable(this, {
       isMyStep: observable,
