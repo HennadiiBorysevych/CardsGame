@@ -16,13 +16,29 @@ const Main: React.FC = observer(() => {
     myCards.addCards(firstMyCards);
   };
 
+  const hisAction = () => {
+    if (!game.isMyStep) {
+      const battleFieldCards = [...battleField.cards.his, battleField.cards.my];
+
+      const hisJuniorCard = hisCards.defineCardForAction(battleFieldCards);
+
+      if (hisJuniorCard) {
+        battleField.addHisCard(hisJuniorCard);
+      } else {
+        battleField.clearBattleField(myCards,hisCards)
+      }
+    }
+  };
+
   useEffect(startGame, []);
+
+  useEffect(hisAction, [game.isMyStep]);
 
   return (
     <>
-      <HisCardsComponents />
-      <BattleFieldComponent />
-      <MyCardsComponents />
+      <HisCardsComponents cards={hisCards.cards} />
+      <MyCardsComponents cards={myCards.cards} onStep={() => {}} />
+      <BattleFieldComponent cards={battleField.cards} />
     </>
   );
 });

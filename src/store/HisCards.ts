@@ -1,6 +1,7 @@
 import { action, makeObservable, observable } from "mobx";
 import PlayerCards from "./PlayerCards";
 import { Card } from "../types";
+import { game } from ".";
 
 class HisCards extends PlayerCards {
   cards: Array<Card> = [];
@@ -26,6 +27,65 @@ class HisCards extends PlayerCards {
       this.reduceCard(juniorCard.id);
     }
     return juniorCard;
+  }
+
+  defineCardForAction = (battleFieldCards: Card[]) => {
+    if (game.isMyAttack) {
+      return this.defineCardForDefense(game.attackCard, battleFieldCards);
+    }
+    return this.defineCardForAttack(battleFieldCards);
+  };
+
+  defineCardForDefense(attackCard: Card | null, battleFieldCards: Card[]) {
+    if (attackCard) {
+      const higherCards = this.cards.filter(
+        (card) => card.type === attackCard?.type && card.rank > attackCard?.rank
+      );
+      const trumpCards = this.cards.filter(
+        (card) => card.type === game.trumpCard
+      );
+
+      if (higherCards.length) {
+        return this.defineJuniorCard(higherCards);
+      }
+
+      if (attackCard.type !== game.trumpCard && trumpCards.length) {
+        return this.defineJuniorCard(trumpCards);
+      }
+
+      this.addCards(battleFieldCards);
+      game.toggleStep();
+      game.setIsGetCard(true);
+    }
+  }
+  defineCardForAttack(battleFieldCards: Card[]) {
+    if (this.cards.length) {
+      let cardForAttack = null;
+
+      if (!battleFieldCards.length) {
+        const trumpCards = this.cards.filter(
+          (card) => card.type === game.trumpCard
+        );
+
+        const notTrumpCards = this.cards.filter(
+          (card) => card.type !== game.trumpCard
+        );
+
+        if (notTrumpCards.length) {
+          cardForAttack = this.defineJuniorCard(notTrumpCards);
+        } else {
+          cardForAttack = this.defineJuniorCard(trumpCards);
+        }
+        game.setAttackCard(cardForAttack);
+        return cardForAttack;
+      }
+
+      cardForAttack = this.defineJuniorExistCard(battleFieldCards);
+      if (cardForAttack) {
+        game.setAttackCard(cardForAttack);
+      }
+      return cardForAttack;
+    }
   }
 }
 

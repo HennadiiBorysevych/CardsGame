@@ -8,7 +8,7 @@ class Game {
   isMyAttack: boolean = false;
   deckCards: Array<Card> = [];
   attackCard: Card = allCards[0];
-  
+
   constructor() {
     makeObservable(this, {
       isMyStep: observable,
@@ -67,7 +67,13 @@ class Game {
       firstMyCards,
     };
   }
-  addPlayersCards(my: any, his: any) {}
+  addPlayersCards(my: any, his: any) {
+    const myNeed = 6 - my.cards.length;
+    const hisNeed = 6 - his.cards.length;
+
+    my.addCards(this.reduceCards(myNeed > 0 ? myNeed : 0));
+    his.addCards(this.reduceCards(myNeed > 0 ? hisNeed : 0));
+  }
 
   defineJuniorTrumpCard(cards: Card[]) {
     const trumpRanks = cards
