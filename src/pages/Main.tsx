@@ -46,18 +46,38 @@ const Main: React.FC = observer(() => {
     }
   };
 
+  const getCard = () => {
+    myCards.addCards([...battleField.cards.his, ...battleField.cards.my]);
+    game.toggleStep();
+    game.setIsGetCard(true);
+    battleField.clearBattleField(myCards, hisCards);
+  };
+
   useEffect(startGame, []);
 
-  useEffect(hisAction, [game.isMyStep]);
+  useEffect(hisAction, []);
 
   return (
     <>
       <HisCardsComponents cards={hisCards.cards} />
-      <MyCardsComponents cards={myCards.cards} onStep={() => {}} />
+      <MyCardsComponents cards={myCards.cards} onStep={clickMyCard} />
       <BattleFieldComponent cards={battleField.cards} />
       <DeckComponent
         cardBallance={game.deckCards.length}
         trump={game.trumpCard}
+      />
+      <MyActions
+        isMyAttack={game.isMyAttack}
+        onRepulsed={() => battleField.clearBattleField(myCards, hisCards)}
+        onGetCard={getCard}
+      />
+      <GameOver
+        isShow={
+          !game.deckCards.length &&
+          (!myCards.cards.length || !hisCards.cards.length)
+        }
+        isMyWin={!myCards.cards.length}
+        onRestartGame={startGame}
       />
     </>
   );
